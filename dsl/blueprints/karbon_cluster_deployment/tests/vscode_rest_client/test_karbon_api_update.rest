@@ -1,0 +1,205 @@
+## .rest files require rest client vscode extension
+## you can add rest-client.enviornmentVariables in vscode settings.json
+## easily switch between environments via command palette (ctrl-shift-P)
+## "rest-client.environmentVariables": {
+##   "environment-a": {
+##     "pc_ip": "10.x.y.z",
+##     "basic_auth_token": "<token>",
+##      "karbon_cluster_name": "karbon-dev-cluster"
+##   },
+##   "environment-b": {
+##     "pc_ip": "10.a.b.c",
+##     "basic_auth_token": "<token>",
+##     "karbon_cluster_name": "karbon-qa-cluster"
+##   }
+## },
+
+@base_url = https://{{pc_ip}}:9440/
+
+# override karbon_cluster_name if not-exisiting in environment configs
+# Examples Config below:
+# @karbon_cluster_name = cicddevelopmentgroup03
+# @karbon_cluster_network_uuid = 554b198e-b019-4b34-b89c-191b712c2f47
+
+@karbon_cluster_name = karbon-demo-v101-test
+@karbon_cluster_node_os_version = ntnx-0.7
+@karbon_cluster_k8s_version = 1.17.13-0
+@karbon_cluster_network_uuid = ""
+
+# needed for storage_auth api
+# target Prism Elemnt cluster info
+# Examples Config below:
+## @pe_csi_storage_container_name = default-karbon-dev-container
+## @pe_csi_cluster_uuid = 0005aa1b-5b86-1225-0000-00000000649a
+## @pe_csi_username = prism-api@drm-poc.local
+
+@pe_csi_storage_container_name = ""
+@pe_csi_cluster_uuid = ""
+@pe_csi_username = ""
+@pe_csi_password = ""
+
+
+# needed for registry update url
+# private_registry_cacert_file should be base64 encoded and single line - ex. `openssl enc -base64 -A`
+
+@private_registry_hostname = ""
+@private_registry_username = ""
+@private_registry_password = ""
+@private_registry_cert_file = ""
+
+
+### Get Cluster Info for subsequent calls
+# @name cluster
+GET {{base_url}}/karbon/v1/k8s/clusters/{{karbon_cluster_name}}
+Authorization: Basic {{basic_auth_token}}
+
+###
+@worker_config_node_pool_name = {{cluster.response.body.worker_config.node_pools[0]}}
+
+### Get Cluster Node Pool Configuration
+# @name node_pool
+GET {{base_url}}/karbon/v1-beta.1/k8s/clusters/{{karbon_cluster_name}}/node-pools/{{worker_config_node_pool_name}}
+Authorization: Basic {{basic_auth_token}}
+
+###
+@worker_config_node_count = {{node_pool.response.body.num_instances}}
+
+###
+### Re-configures Storage Authentication
+# @name storage_auth
+PUT {{base_url}}/karbon/v1-alpha.1/k8s/clusters/storage-auth
+Authorization: Basic {{basic_auth_token}}
+
+{
+  "password": "{{pe_csi_password}}",
+  "prism_element_cluster_uuid": "{{pe_csi_cluster_uuid}}",
+  "username": "{{pe_csi_username}}"
+}
+
+###
+### Configures Private Registry
+# @name registry
+POST {{base_url}}/karbon/v1-alpha.1/registries
+Authorization: Basic {{basic_auth_token}}
+
+{
+  "cert":"{{private_registry_cert_file}}",
+  "name":"{{karbon_cluster_name}}",
+  "username":"{{private_registry_username}}",
+  "password": "{{private_registry_password}}",
+  "port":443,
+  "url":"{{private_registry_hostname}}"
+}
+
+###
+### Creates Karbon Development Cluster
+
+POST {{base_url}}/karbon/v1/k8s/clusters
+Authorization: Basic {{basic_auth_token}}
+
+{
+  "cni_config": {
+    "flannel_config": {},
+    "pod_ipv4_cidr": "172.20.0.0/16",
+    "service_ipv4_cidr": "172.19.0.0/16"
+  },
+
+  "etcd_config": {
+    "node_pools": [
+      {
+        "ahv_config": {
+          "cpu": 4,
+          "disk_mib": 40960,
+          "memory_mib": 8192,
+          "network_uuid": "{{karbon_cluster_network_uuid}}",
+          "prism_element_cluster_uuid": "{{pe_csi_cluster_uuid}}"
+        },
+        "name": "{{karbon_cluster_name}}_etcd_pool_01",
+        "node_os_version": "{{karbon_cluster_node_os_version}}",
+        "num_instances": 1
+      }
+    ]
+  },
+  "masters_config": {
+    "single_master_config": {},
+    "node_pools": [
+      {
+        "ahv_config": {
+          "cpu": 2,
+          "disk_mib": 122880,
+          "memory_mib": 8192,
+          "network_uuid": "{{karbon_cluster_network_uuid}}",
+          "prism_element_cluster_uuid": "{{pe_csi_cluster_uuid}}"
+        },
+        "name": "{{karbon_cluster_name}}_master_pool_01",
+        "node_os_version": "{{karbon_cluster_node_os_version}}",
+        "num_instances": 1
+      }
+    ]
+  },
+  "name": "{{karbon_cluster_name}}",
+  "metadata": {
+    "api_version": "v1.0.0"
+  },
+  "storage_class_config": {
+    "default_storage_class": true,
+    "name": "default-storageclass",
+    "reclaim_policy": "Delete",
+    "volumes_config": {
+      "file_system": "ext4",
+      "flash_mode": false,
+      "password": "{{pe_csi_password}}",
+      "prism_element_cluster_uuid": "{{karbon_cluster_network_uuid}}",
+      "storage_container": "{{pe_csi_storage_container_name}}",
+      "username": "{{pe_csi_username}}"
+    }
+  },
+  "version": "{{karbon_cluster_k8s_version}}",
+  "workers_config": {
+    "node_pools": [
+      {
+        "ahv_config": {
+          "cpu": 8,
+          "disk_mib": 122880,
+          "memory_mib": 8192,
+          "network_uuid": "{{karbon_cluster_network_uuid}}",
+          "prism_element_cluster_uuid": "{{pe_csi_cluster_uuid}}"
+        },
+        "name": "{{karbon_cluster_name}}_worker_pool_01",
+        "node_os_version": "{{karbon_cluster_node_os_version}}",
+        "num_instances": 2
+      }
+    ]
+  }
+}
+
+
+###
+### Add Karbon Worker Node
+# @name task
+POST {{base_url}}/karbon/v1-alpha.1/k8s/clusters/{{karbon_cluster_name}}/node-pools/{{worker_config_node_pool_name}}/add-nodes
+Authorization: Basic {{basic_auth_token}}
+
+{
+  "count":2
+}
+
+###
+### Remove Karbon Worker Node
+# @name task
+POST {{base_url}}/karbon/v1-alpha.1/k8s/clusters/{{karbon_cluster_name}}/node-pools/{{worker_config_node_pool_name}}/remove-nodes
+Authorization: Basic {{basic_auth_token}}
+
+{
+  "count":1
+}
+
+##
+
+@task_uuid = {{task.response.body.task_uuid}}
+
+###
+### Monitor Task Progress
+
+GET {{base_url}}/karbon/v1-alpha.1/k8s/clusters/{{karbon_cluster_name}}/tasks/{{task_uuid}}
+Authorization: Basic {{basic_auth_token}}

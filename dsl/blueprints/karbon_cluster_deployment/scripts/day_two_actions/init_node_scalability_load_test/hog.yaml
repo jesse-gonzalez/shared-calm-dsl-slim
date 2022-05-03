@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: hog
+  name: hog
+spec:
+  selector:
+    matchLabels:
+      app: hog
+  template:
+    metadata:
+      labels:
+        app: hog
+    spec:
+      containers:
+      - image: vish/stress
+        name: stress
+        resources:
+          requests:
+            cpu: "0.5"
+        args:
+        - -cpus
+        - "6"

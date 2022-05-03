@@ -1,0 +1,26 @@
+## .rest files require rest client vscode extension
+## you can add rest-client.enviornmentVariables in vscode settings.json
+## easily switch between environments via command palette (ctrl-shift-P)
+## "rest-client.environmentVariables": {
+##   "environment-a": {
+##     "pc_ip": "10.x.y.z",
+##     "basic_auth_token": "<token>",
+##      "karbon_cluster_name": "karbon-dev-cluster"
+##   },
+##   "environment-b": {
+##     "pc_ip": "10.a.b.c",
+##     "basic_auth_token": "<token>",
+##     "karbon_cluster_name": "karbon-qa-cluster"
+##   }
+## },
+
+@base_url = https://{{pc_ip}}:9440/
+
+### Get Applications
+# @name applications
+POST {{base_url}}/api/nutanix/v3/apps/list
+Authorization: Basic {{basic_auth_token}}
+
+{}
+
+

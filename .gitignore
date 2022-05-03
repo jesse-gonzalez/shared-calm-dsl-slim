@@ -1,0 +1,88 @@
+__pycache__
+.DS_Store
+.envrc.bkup
+
+# ignore local secrets dir
+.local/*
+!.local/templates
+
+# ignore anything under configs that's not templates
+configs/*
+!configs/templates
+!configs/defaults
+
+# ignore kubectl config files
+*.cfg
+
+# ignore temp junk
+_tmp
+tmp
+.todo
+.junk
+
+# MacOS
+## Ignore desktop services files.
+**/.DS_Store
+
+# HashiCorp Packer
+## Ignore cache directories.
+packer_cache/
+## Ignore crash log files.
+crash.log
+
+# HashiCorp Terraform
+## Ignore .terraform directories.
+**/.terraform/*
+## Ignore .tfstate files
+*.tfstate
+*.tfstate.*
+*.terraform.*
+tfplan.out
+## Ignore crash.log files.
+crash.log
+## Ignore .tfvars files, which are likely to contain sentitive data.
+*.tfvars
+## Ignore override files.
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+## Ignore Terraform CLI configuration files.
+.terraformrc
+terraform.rc
+## Ignore generated tfplans
+*.tfplan
+
+## Ignore certificates files.
+**/*.cer
+**/*.crt
+**/*.p7b
+## Ignore public key files
+**/*.pub
+
+# Manifests
+## Ignore manifests directory.
+**/manifests/*.json
+
+## Hauler
+store
+**/*.zst
+
+# Temp junk
+## Ignore temp directory
+temp/
+tmp/
+_tmp/
+
+# Configuration stuff
+config/**/.cache/**
+.local
+
+# ignore secrets / sops yaml file
+config/**/secrets.yaml.dec
+
+# ignore .kube
+.kube
+
+# ignore bin contents
+bin/**

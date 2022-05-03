@@ -1,0 +1,5 @@
+image:
+  name : CENTOS-7.4
+  type : DISK_IMAGE
+  source : http://download.nutanix.com/calm/CentOS-7-x86_64-GenericCloud.qcow2
+  architecture : X86_64

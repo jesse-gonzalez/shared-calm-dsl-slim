@@ -1,0 +1,13 @@
+#cloud-config
+users:
+  - default
+  - name: @@{Nutanix.username}@@
+    shell: /bin/bash
+    homedir: /home/@@{Nutanix.username}@@
+    ssh-authorized-keys:
+      - @@{nutanix_public_key}@@
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+ssh_pwauth:   true
+fqdn: @@{name}@@.@@{domain_name}@@
+manage_etc_hosts: true
+hostname: @@{name}@@
