@@ -52,3 +52,4 @@ RUN chmod +x *.sh \
 COPY ./.local/common/sops_gpg_key /tmp
 WORKDIR /tmp
 RUN gpg --import sops_gpg_key
+

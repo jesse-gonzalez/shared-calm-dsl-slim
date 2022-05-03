@@ -29,7 +29,7 @@ docker-run: ## Launch into Calm DSL development container. If image isn't availa
 		-v `pwd`:/dsl-workspace \
 		-v `pwd`/.local/${ENVIRONMENT}:${CALM_DSL_LOCAL_DIR_LOCATION}/ \
 		-w '/dsl-workspace' \
-		calm-dsl-utils /bin/sh -c "make help && /bin/zsh"
+		calm-dsl-utils /bin/sh -c "git config --add safe.directory /dsl-workspace && /bin/zsh"
 
 .PHONY: init-dsl-config
 init-dsl-config: print-vars ## Initialize calm dsl configuration with environment specific configs.  Assumes that it will be running withing Container.

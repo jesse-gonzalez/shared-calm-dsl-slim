@@ -1,9 +1,6 @@
 # shared-calm-dsl-slim
+
 Public Repo for sharing DSL blueprints used in Calm Demos
-
-- update .local secrets
-
-- generate gpg key
 
 ## Pre-Requisites
 
@@ -64,8 +61,6 @@ unpublish-helm-bps   Unpublish Single Helm Chart Blueprint - latest git release.
 
 `make docker-build && make docker-run`
 
-
-
 ## Configure New Environment
 
 ### Install the helm secrets plug-in
@@ -93,9 +88,9 @@ Key-Type: RSA
 Key-Length: 4096
 Subkey-Type: RSA
 Subkey-Length: 4096
-Name-Real: HELM Secret
-Name-Comment: Used for HELM Secret Plugin
-Name-Email: helm-secret@email.com
+Name-Real: Calm DSL HELM Secret
+Name-Comment: Used for HELM Secret Plugin in Calm DSL Demos
+Name-Email: calm-dsl-helm-secret@email.com
 Expire-Date: 0
 %no-ask-passphrase
 %no-protection
@@ -104,22 +99,23 @@ Expire-Date: 0
 EOF
 ```
 
-Export GPG and store in `.local/common` directory
+Export GPG Private Key and store in `.local/common` directory
 
+`gpg --export-secret-key -a "calm-dsl-helm-secret@email.com" > .local/common/sops_gpg_key`
 
 ### Create Environment Dir and Generate Secrets
 
 1. Copy `config/templates` dir to `config/<environment>` dir
 
->`cp -rf config/templates config/ntnx-lab-demo`
+> `cp -rf config/templates config/ntnx-lab-demo`
 
 2. Get the GPG Key needed for `.sops.yaml` file
 
-> `gpg --list-key helm-secret@email.com`
+> `gpg --list-key calm-dsl-helm-secret@email.com`
 
 OR
 
-> `gpg --list-key helm-secret@email.com | head -n 2 | tail -n 1 | tr -d " "`
+> `gpg --list-key calm-dsl-helm-secret@email.com | head -n 2 | tail -n 1 | tr -d " "`
 
 3. Update `config/<environment>/.sops.yaml` with generated gpg key
 
@@ -155,3 +151,8 @@ docker_hub_password: <password>
 > `helm secrets enc config/rancher-dev/secrets.yaml`
 
 6. Update `config/<environment>/.env` with properties that need to be overridden
+
+- generate nutanix public key
+
+- add .local/<environment>/nutanix_public_key
+- add .local/<environment>/nutanix_key

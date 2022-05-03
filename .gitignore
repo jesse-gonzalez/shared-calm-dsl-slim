@@ -7,9 +7,9 @@ __pycache__
 !.local/templates
 
 # ignore anything under configs that's not templates
-configs/*
-!configs/templates
-!configs/defaults
+config/*
+!config/templates
+!config/common
 
 # ignore kubectl config files
 *.cfg
